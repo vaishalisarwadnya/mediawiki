@@ -4,9 +4,9 @@ MAINTAINER vaishali.sarwadnya
 
 # Pre-requisites
 
-RUN yum install -y centos-release-scl wget
+RUN yum install -y centos-release-scl wget firewalld
 
-RUN yum install -y httpd24-httpd rh-php73 rh-php73-php rh-php73-php-mbstring rh-php73-php-mysqlnd rh-php73-php-gd rh-php73-php-xml
+RUN yum install -y httpd24-httpd rh-php73 rh-php73-php rh-php73-php-mbstring rh-php73-php-mysqlnd rh-php73-php-gd rh-php73-php-xml && yum clean all
 
 # Install MediaWiki tarball
 
@@ -33,11 +33,16 @@ RUN sed -i -e 's|^DocumentRoot "/opt/rh/httpd24/root/var/www"|DocumentRoot "/opt
 #RUN chown -R apache:apache /opt/rh/httpd24/root/var/www/mediawiki
 
 # Firewall
+CMD systemctl start firewalld
 
-#RUN firewall-cmd --permanent --zone=public --add-service=http && firewall-cmd --permanent --zone=public --add-service=https && systemctl restart firewalld
+#RUN firewall-cmd --permanent --zone=public --add-service=http
+
+#RUN firewall-cmd --permanent --zone=public --add-service=https
+
+CMD systemctl restart firewalld
 
 # Security (selinux) - Check for correct context set as system_u:object_r:httpd_sys_content_t:s0
 
-#RUN sudo restorecon -FR /var/www/mediawiki/ && ls -lZ /var/www/
+#RUN restorecon -FR /opt/rh/httpd24/root/var/www/mediawiki/ && ls -lZ /opt/rh/httpd24/root/var/www/
 
-CMD /opt/rh/httpd24/root/usr/sbin/apachectl -DFOREGROUND
+CMD systemctl start httpd

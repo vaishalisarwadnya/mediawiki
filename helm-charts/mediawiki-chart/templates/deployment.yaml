@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mediawiki-chart
+  labels:
+    service: mediawiki-setup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: mediawiki-setup
+  template:
+    metadata:
+      labels:
+        service: mediawiki-setup
+    spec:
+      containers:
+        - name: mediawiki
+          image: mediawiki:1.37
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            limits:
+              cpu: {{.Values.cpuLimit}}
+              memory: {{.Values.memLimit}}
+            requests:
+              cpu: {{.Values.cpuRequest}}
+              memory: {{.Values.memRequest}}
